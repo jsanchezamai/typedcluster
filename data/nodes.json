@@ -1,0 +1,34 @@
+[
+  {
+    "config": {
+      "name": "orchestrator",
+      "ip": "192.168.1.100",
+      "role": "orchestrator"
+    },
+    "traces": []
+  },
+  {
+    "config": {
+      "name": "data_manager",
+      "ip": "192.168.1.101",
+      "role": "data_manager"
+    },
+    "traces": []
+  },
+  {
+    "config": {
+      "name": "model_manager",
+      "ip": "192.168.1.102",
+      "role": "model_manager"
+    },
+    "traces": []
+  },
+  {
+    "config": {
+      "name": "network_manager",
+      "ip": "192.168.1.103",
+      "role": "network_manager"
+    },
+    "traces": []
+  }
+]

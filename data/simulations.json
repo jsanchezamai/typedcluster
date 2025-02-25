@@ -1,0 +1,24 @@
+[
+  {
+    "name": "teset",
+    "description": "dgsdgsdgd",
+    "nodeCount": 4,
+    "workType": "Detector de anomalías",
+    "strategy": "machine learning",
+    "algorithm": "Redes neuronales",
+    "dataDirectory": "test",
+    "status": "stopped",
+    "lastUpdate": "2025-02-25T19:42:48.462Z"
+  },
+  {
+    "name": "test",
+    "description": "test desc",
+    "nodeCount": 4,
+    "workType": "Detector de anomalías",
+    "strategy": "machine learning",
+    "algorithm": "Redes neuronales",
+    "dataDirectory": "test_path",
+    "status": "stopped",
+    "lastUpdate": "2025-02-25T19:47:37.611Z"
+  }
+]

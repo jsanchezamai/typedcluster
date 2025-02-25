@@ -1,0 +1,124 @@
+{
+  "engines": {
+    "vscode": "^1.85.0"
+  },
+  "activationEvents": [
+    "onCommand:iotSimulator.createSimulation",
+    "onCommand:iotSimulator.showClusterStatus",
+    "onCommand:iotSimulator.startSimulation",
+    "onCommand:iotSimulator.pauseSimulation",
+    "onCommand:iotSimulator.stopSimulation",
+    "onCommand:iotSimulator.generateHistoricalData",
+    "onCommand:iotSimulator.configureFailureRecovery",
+    "onView:iotSimulatorSimulations",
+    "onView:iotSimulatorNodes"
+  ],
+  "categories": [
+    "Other"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/replit/iot-cluster-simulator.git"
+  },
+  "publisher": "replit",
+  "contributes": {
+    "commands": [
+      {
+        "command": "iotSimulator.createSimulation",
+        "title": "IoT Simulator: Create New Simulation"
+      },
+      {
+        "command": "iotSimulator.showClusterStatus",
+        "title": "IoT Simulator: Show Cluster Status"
+      },
+      {
+        "command": "iotSimulator.configureLoadBalancing",
+        "title": "IoT Simulator: Configure Load Balancing"
+      },
+      {
+        "command": "iotSimulator.startSimulation",
+        "title": "IoT Simulator: Start Simulation",
+        "icon": "$(play)"
+      },
+      {
+        "command": "iotSimulator.pauseSimulation",
+        "title": "IoT Simulator: Pause Simulation",
+        "icon": "$(debug-pause)"
+      },
+      {
+        "command": "iotSimulator.stopSimulation",
+        "title": "IoT Simulator: Stop Simulation",
+        "icon": "$(debug-stop)"
+      },
+      {
+        "command": "iotSimulator.generateHistoricalData",
+        "title": "IoT Simulator: Generate Historical Data",
+        "icon": "$(calendar)"
+      },
+      {
+        "command": "iotSimulator.configureFailureRecovery",
+        "title": "IoT Simulator: Configure Failure Recovery"
+      }
+    ],
+    "viewsContainers": {
+      "activitybar": [
+        {
+          "id": "iot-simulator",
+          "title": "IoT Simulator",
+          "icon": "resources/dark/cluster.svg"
+        }
+      ]
+    },
+    "views": {
+      "iot-simulator": [
+        {
+          "id": "iotSimulatorSimulations",
+          "name": "Simulations"
+        },
+        {
+          "id": "iotSimulatorNodes",
+          "name": "Cluster Nodes"
+        }
+      ]
+    },
+    "menus": {
+      "view/item/context": [
+        {
+          "command": "iotSimulator.startSimulation",
+          "when": "view == iotSimulatorSimulations && viewItem == simulation && viewItem.status == stopped",
+          "group": "inline"
+        },
+        {
+          "command": "iotSimulator.pauseSimulation",
+          "when": "view == iotSimulatorSimulations && viewItem == simulation && viewItem.status == running",
+          "group": "inline"
+        },
+        {
+          "command": "iotSimulator.stopSimulation",
+          "when": "view == iotSimulatorSimulations && viewItem == simulation && viewItem.status != stopped",
+          "group": "inline"
+        }
+      ]
+    },
+    "configuration": {
+      "title": "IoT Simulator",
+      "properties": {
+        "iotSimulator.defaultNodeCount": {
+          "type": "number",
+          "default": 3,
+          "description": "Default number of nodes for new simulations"
+        },
+        "iotSimulator.refreshInterval": {
+          "type": "number",
+          "default": 5000,
+          "description": "Metrics refresh interval (ms)"
+        },
+        "iotSimulator.mqttBroker": {
+          "type": "string",
+          "default": "mqtt://localhost:1883",
+          "description": "Default MQTT broker URL"
+        }
+      }
+    }
+  }
+}

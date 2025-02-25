@@ -1,0 +1,23 @@
+{
+  "$schema": "https://typedoc.org/schema.json",
+  "entryPoints": ["src/extension.ts"],
+  "out": "docs/api",
+  "name": "IoT Cluster Simulator VS Code Extension",
+  "excludePrivate": false,
+  "excludeProtected": false,
+  "readme": "docs/VS_CODE_EXTENSION.md",
+  "plugin": ["typedoc-plugin-markdown"],
+  "theme": "markdown",
+  "includeVersion": true,
+  "categorizeByGroup": true,
+  "categoryOrder": [
+    "Extension",
+    "Views",
+    "Commands",
+    "Services",
+    "*"
+  ],
+  "sort": [
+    "source-order"
+  ]
+}

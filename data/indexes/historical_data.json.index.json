@@ -1,0 +1,14 @@
+{
+  "fileName": "historical_data.json",
+  "timeRange": {
+    "start": "2025-12-11T00:00:00.000Z",
+    "end": "2025-12-11T00:00:00.000Z"
+  },
+  "plcIds": [
+    0,
+    1,
+    2
+  ],
+  "anomalyCount": 0,
+  "recordCount": 3
+}
