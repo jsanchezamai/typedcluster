@@ -8,7 +8,7 @@
 
 > **activate**(`context`): `void`
 
-Defined in: [extension.ts:16](https://github.com/escrivivir-co/InVendiClusterSimulator/blob/b6521dcded4f1f5d59583360acb356434b7a1530/src/extension.ts#L16)
+Defined in: [extension.ts:16](https://github.com/escrivivir-co/kitClusterSimulator/blob/b6521dcded4f1f5d59583360acb356434b7a1530/src/extension.ts#L16)
 
 ## Parameters
 

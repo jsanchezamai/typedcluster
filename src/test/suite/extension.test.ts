@@ -8,7 +8,7 @@ suite('IoT Cluster Simulator Extension Test Suite', () => {
     vscode.window.showInformationMessage('Starting test suite');
 
     test('Extension should be present', () => {
-        assert.ok(vscode.extensions.getExtension('invendi.iot-cluster-simulator'));
+        assert.ok(vscode.extensions.getExtension('kit.iot-cluster-simulator'));
     });
 
     test('Tree views should be registered', async () => {

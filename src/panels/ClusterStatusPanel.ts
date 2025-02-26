@@ -1,7 +1,8 @@
 import * as vscode from 'vscode';
 import { SimulationManager } from '../services/SimulationManager';
+import { DiskInfo, GPUInfo, NetworkInfo } from '../types/cluster';
 
-interface NodeStatus {
+export interface NodeStatus {
     status: string;
     workload: number;
     gpus: Array<{
@@ -199,4 +200,78 @@ export class ClusterStatusPanel {
         // Log panel disposal for debugging
         console.log('ClusterStatusPanel disposed');
     }
+}
+
+export function getNodeDetailsHtml(
+    nodeName: string,
+    nodeStatus: {
+        status: NodeStatus;
+        gpus: GPUInfo[];
+		disk: DiskInfo;
+        network: NetworkInfo;
+        workload: number;
+    }
+): string {
+    const gpuRows =
+        nodeStatus.gpus
+            ?.map(
+                (gpu) => `
+        <tr>
+            <td>${gpu.model}</td>
+			<td>${gpu.memory} GB</td>
+			<td>${gpu.tensorCores}</td>
+			<td>${gpu.tops}</td>
+            <td>${gpu.utilization.toFixed(1)}%</td>
+            <td>${gpu.temperature.toFixed(1)}°C</td>
+        </tr>
+    `
+            )
+            .join("") || "";
+
+    return `
+        <!DOCTYPE html>
+        <html>
+        <head>
+            <style>
+                body { padding: 15px; font-family: var(--vscode-font-family); }
+                .status { padding: 4px 8px; border-radius: 4px; }
+                .online { background: var(--vscode-testing-iconPassed); }
+                .degraded { background: var(--vscode-testing-iconSkipped); }
+                .offline { background: var(--vscode-testing-iconFailed); }
+                table { width: 100%; border-collapse: collapse; margin: 15px 0; }
+                th, td { padding: 8px; text-align: left; border-bottom: 1px solid var(--vscode-widget-border); }
+            </style>
+        </head>
+        <body>
+            <h2>${nodeName}</h2>
+            <p>Status: <span class="status ${nodeStatus.status}">${
+        nodeStatus.status
+    }</span></p>
+            <p>Workload: ${nodeStatus.workload.toFixed(1)}%</p>
+
+            <h3>GPUs</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Model</th>
+						<th>Memory</th>
+						<th>Tensors</th>
+						<th>TOPS</th>
+                        <th>Utilization</th>
+                        <th>Temperature</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    ${gpuRows}
+                </tbody>
+            </table>
+
+            <h3>Details:</h3>
+			<p>Disk: ${nodeStatus.disk.label} ${nodeStatus.disk.size} Gb</p>
+			<p>Bandwidth: ${nodeStatus.network.bandwidth} Gbs</p>
+            <p>Latency: ${nodeStatus.network.latency.toFixed(1)} ms</p>
+            <p>Packet Loss: ${nodeStatus.network.packetLoss.toFixed(2)}%</p>
+        </body>
+        </html>
+    `;
 }

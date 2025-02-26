@@ -32,17 +32,7 @@ function mergeManifests(): void {
 
         // VS Code specific fields to merge
         const vsCodeFields = [
-            'activationEvents',
-            'contributes',
-            'categories',
-            'engines',
-            'icon',
-            'galleryBanner',
-            'publisher',
-            'displayName',
-            'description',
-            'repository',
-            'bugs'
+            'contributes'
         ];
 
         // Preserve existing scripts and dependencies
@@ -65,13 +55,7 @@ function mergeManifests(): void {
 
         // Restore preserved fields
         packageJson.scripts = {
-            ...existingScripts,
-            "vscode:prepublish": "npm run compile",
-            "compile": "tsc -p ./",
-            "watch": "tsc -watch -p ./",
-            "pretest": "npm run compile && npm run lint",
-            "lint": "eslint src --ext ts",
-            "test": "node ./out/test/runTest.js"
+            ...existingScripts
         };
         packageJson.dependencies = existingDependencies;
         packageJson.devDependencies = existingDevDependencies;

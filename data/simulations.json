@@ -7,8 +7,8 @@
     "strategy": "machine learning",
     "algorithm": "Redes neuronales",
     "dataDirectory": "test",
-    "status": "stopped",
-    "lastUpdate": "2025-02-25T19:42:48.462Z"
+    "status": "running",
+    "lastUpdate": "2025-02-26T01:18:11.147Z"
   },
   {
     "name": "test",
@@ -20,5 +20,16 @@
     "dataDirectory": "test_path",
     "status": "stopped",
     "lastUpdate": "2025-02-25T19:47:37.611Z"
+  },
+  {
+    "name": "gsgdg",
+    "description": "gdsgsdg",
+    "nodeCount": 3,
+    "workType": "Detector de anomalías",
+    "strategy": "estadística",
+    "algorithm": "umbrales fijos",
+    "dataDirectory": "./data",
+    "status": "stopped",
+    "lastUpdate": "2025-02-26T03:35:01.730Z"
   }
 ]

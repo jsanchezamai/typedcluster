@@ -1,10 +1,18 @@
-import { Simulation } from '../models/Simulation';
-import { ClusterNode } from '../models/ClusterNode';
-import { FileManager } from './FileManager';
-import { TelemetryGenerator } from './TelemetryGenerator';
-import { logger } from '../utils/logger';
-import { ClusterNodeConfig, GPUInfo, NetworkInfo, LoadBalancingStrategy, FailureRecoveryConfig, CompressionConfig } from '../types/cluster';
-import { SensorSimulator } from './SensorSimulator';
+import { Simulation } from "../models/Simulation";
+import { ClusterNode } from "../models/ClusterNode";
+import { FileManager } from "./FileManager";
+import { TelemetryGenerator } from "./TelemetryGenerator";
+import { logger } from "../utils/logger";
+import {
+    ClusterNodeConfig,
+    GPUInfo,
+    NetworkInfo,
+    LoadBalancingStrategy,
+    FailureRecoveryConfig,
+    CompressionConfig,
+	DiskInfo,
+} from "../types/cluster";
+import { SensorSimulator } from "./SensorSimulator";
 
 export class SimulationManager {
     private simulations: Map<string, Simulation> = new Map();
@@ -12,7 +20,7 @@ export class SimulationManager {
     private fileManager: FileManager;
     private telemetryGenerator: TelemetryGenerator;
     private sensorSimulator?: SensorSimulator;
-    private loadBalancingStrategy: LoadBalancingStrategy = 'least-loaded';
+    private loadBalancingStrategy: LoadBalancingStrategy = "least-loaded";
     private loadSimulationInterval: NodeJS.Timeout | null = null;
 
     constructor() {
@@ -30,124 +38,191 @@ export class SimulationManager {
         const loadedNodes = await this.fileManager.loadNodes();
         if (loadedNodes.size > 0) {
             this.nodes = loadedNodes;
-            logger.info('Loaded existing cluster nodes configuration');
+            logger.info("Loaded existing cluster nodes configuration");
         } else {
             this.initializeDefaultNodes();
             await this.fileManager.saveNodes(this.nodes);
-            logger.info('Initialized default cluster nodes configuration');
+            logger.info("Initialized default cluster nodes configuration");
         }
     }
 
     private initializeDefaultNodes() {
         const defaultNodes: ClusterNodeConfig[] = [
             {
-                name: 'orchestrator',
-                ip: '192.168.1.100',
-                role: 'orchestrator',
+                name: "RPi 5",
+                gpus: [],
+				disk: {
+					label: "NVMe|SDCard",
+					size: 64
+                },
+                network: {
+					ip: "192.168.1.99",
+					role: "router",
+                    bandwidth: 1,
+                    latency: 1,
+                    packetLoss: 0,
+                    lastUpdate: new Date(),
+                },
+                status: "online",
+                lastHeartbeat: new Date(),
+                workload: 0,
+                failureCount: 0,
+                compressionEnabled: false,
+            },
+            {
+                name: "AGX Orin",
                 gpus: [
                     {
-                        model: 'NVIDIA A100',
-                        memory: 80,
+                        model: "2048 Ampere",
+                        memory: 64,
                         utilization: 0,
-                        temperature: 35
+                        temperature: 35,
+						tops: 275,
+						tensorCores: 64
                     },
-                    {
-                        model: 'NVIDIA A100',
-                        memory: 80,
-                        utilization: 0,
-                        temperature: 35
-                    }
                 ],
                 network: {
-                    bandwidth: 10000,
+					ip: "192.168.1.100",
+					role: "node-sun",
+                    bandwidth: 10,
                     latency: 1,
                     packetLoss: 0,
-                    lastUpdate: new Date()
+                    lastUpdate: new Date(),
                 },
-                status: 'online'
+				disk: {
+					label: "eMMC 5.1",
+					size: 64
+                },
+                status: "online",
+                lastHeartbeat: new Date(),
+                workload: 0,
+                failureCount: 0,
+                compressionEnabled: false,
             },
             {
-                name: 'data_manager',
-                ip: '192.168.1.101',
-                role: 'data_manager',
+                name: "J202 NX (Yang)",
                 gpus: [
                     {
-                        model: 'NVIDIA A100',
-                        memory: 80,
+                        model: "1024 Ampere",
+                        memory: 16,
                         utilization: 0,
-                        temperature: 35
-                    }
+                        temperature: 35,
+						tops: 157,
+						tensorCores: 32
+                    },
                 ],
+				disk: {
+					label: "NVMe|SDCard",
+					size: 64
+                },
                 network: {
-                    bandwidth: 10000,
+					ip: "192.168.1.101",
+					role: "node-white",
+                    bandwidth: 1,
                     latency: 1,
                     packetLoss: 0,
-                    lastUpdate: new Date()
+                    lastUpdate: new Date(),
                 },
-                status: 'online'
+                status: "online",
+                lastHeartbeat: new Date(),
+                workload: 0,
+                failureCount: 0,
+                compressionEnabled: false,
             },
             {
-                name: 'model_manager',
-                ip: '192.168.1.102',
-                role: 'model_manager',
+                name: "J202 NX (Yin)",
                 gpus: [
                     {
-                        model: 'NVIDIA A100',
-                        memory: 80,
+                        model: "1024 Ampere",
+                        memory: 16,
                         utilization: 0,
-                        temperature: 35
-                    }
+                        temperature: 35,
+						tops: 157,
+						tensorCores: 32
+                    },
                 ],
+				disk: {
+					label: "NVMe|SDCard",
+					size: 64
+                },
                 network: {
-                    bandwidth: 10000,
+					ip: "192.168.1.102",
+					role: "node-black",
+                    bandwidth: 1,
                     latency: 1,
                     packetLoss: 0,
-                    lastUpdate: new Date()
+                    lastUpdate: new Date(),
                 },
-                status: 'online'
+                status: "online",
+                lastHeartbeat: new Date(),
+                workload: 0,
+                failureCount: 0,
+                compressionEnabled: false,
             },
             {
-                name: 'network_manager',
-                ip: '192.168.1.103',
-                role: 'network_manager',
+                name: "Orin Nano",
                 network: {
-                    bandwidth: 10000,
+					ip: "192.168.1.103",
+					role: "node-tiny",
+                    bandwidth: 1,
                     latency: 1,
                     packetLoss: 0,
-                    lastUpdate: new Date()
+                    lastUpdate: new Date(),
                 },
-                status: 'online'
-            }
+				disk: {
+					label: "NVMe|SDCard",
+					size: 64
+                },
+                status: "online",
+                gpus: [
+                    {
+                        model: "1024 Ampere",
+                        memory: 8,
+                        utilization: 0,
+                        temperature: 35,
+						tops: 67,
+						tensorCores: 32
+                    },
+                ],
+
+                workload: 0,
+                failureCount: 0,
+                compressionEnabled: false,
+            },
         ];
 
-        defaultNodes.forEach(config => {
+        defaultNodes.forEach((config) => {
             this.nodes.set(config.name, new ClusterNode(config));
         });
     }
 
     private async loadSimulations() {
         const savedSimulations = await this.fileManager.loadSimulations();
-        savedSimulations.forEach(sim => {
+        savedSimulations.forEach((sim) => {
             this.simulations.set(sim.name, sim);
         });
     }
 
     async addSimulation(simulation: Simulation): Promise<void> {
         if (this.simulations.has(simulation.name)) {
-            throw new Error('Simulation with this name already exists');
+            throw new Error("Simulation with this name already exists");
         }
         this.simulations.set(simulation.name, simulation);
-        await this.fileManager.saveSimulations(Array.from(this.simulations.values()));
-        logger.info('Simulation added', { simulation: simulation.name });
+        await this.fileManager.saveSimulations(
+            Array.from(this.simulations.values())
+        );
+        logger.info("Simulation added", { simulation: simulation.name });
     }
 
     async removeSimulation(name: string): Promise<void> {
         if (!this.simulations.has(name)) {
-            throw new Error('Simulation not found');
+            throw new Error("Simulation not found");
         }
         this.simulations.delete(name);
-        await this.fileManager.saveSimulations(Array.from(this.simulations.values()));
-        logger.info('Simulation removed', { simulation: name });
+        await this.fileManager.saveSimulations(
+            Array.from(this.simulations.values())
+        );
+        logger.info("Simulation removed", { simulation: name });
     }
 
     getSimulations(): Simulation[] {
@@ -155,7 +230,7 @@ export class SimulationManager {
     }
 
     getRunningSimulations(): Simulation[] {
-        return this.getSimulations().filter(sim => sim.status === 'running');
+        return this.getSimulations().filter((sim) => sim.status === "running");
     }
 
     async generateHistoricalData(
@@ -166,14 +241,14 @@ export class SimulationManager {
     ): Promise<void> {
         const simulation = this.simulations.get(simulationName);
         if (!simulation) {
-            throw new Error('Simulation not found');
+            throw new Error("Simulation not found");
         }
 
-        logger.info('Starting historical data generation', {
+        logger.info("Starting historical data generation", {
             simulation: simulationName,
             startDate,
             endDate,
-            anomalyFactor
+            anomalyFactor,
         });
 
         await this.telemetryGenerator.generateHistoricalData(
@@ -187,40 +262,46 @@ export class SimulationManager {
     async startSimulation(name: string): Promise<void> {
         const simulation = this.simulations.get(name);
         if (!simulation) {
-            throw new Error('Simulation not found');
+            throw new Error("Simulation not found");
         }
-        simulation.status = 'running';
+        simulation.status = "running";
         simulation.lastUpdate = new Date();
-        await this.fileManager.saveSimulations(Array.from(this.simulations.values()));
+        await this.fileManager.saveSimulations(
+            Array.from(this.simulations.values())
+        );
 
         this.telemetryGenerator.startGeneration(simulation);
-        logger.info('Simulation started', { simulation: name });
+        logger.info("Simulation started", { simulation: name });
     }
 
     async stopSimulation(name: string): Promise<void> {
         const simulation = this.simulations.get(name);
         if (!simulation) {
-            throw new Error('Simulation not found');
+            throw new Error("Simulation not found");
         }
-        simulation.status = 'stopped';
+        simulation.status = "stopped";
         simulation.lastUpdate = new Date();
-        await this.fileManager.saveSimulations(Array.from(this.simulations.values()));
+        await this.fileManager.saveSimulations(
+            Array.from(this.simulations.values())
+        );
 
         this.telemetryGenerator.stopGeneration(simulation);
-        logger.info('Simulation stopped', { simulation: name });
+        logger.info("Simulation stopped", { simulation: name });
     }
 
     async pauseSimulation(name: string): Promise<void> {
         const simulation = this.simulations.get(name);
         if (!simulation) {
-            throw new Error('Simulation not found');
+            throw new Error("Simulation not found");
         }
-        simulation.status = 'paused';
+        simulation.status = "paused";
         simulation.lastUpdate = new Date();
-        await this.fileManager.saveSimulations(Array.from(this.simulations.values()));
+        await this.fileManager.saveSimulations(
+            Array.from(this.simulations.values())
+        );
 
         this.telemetryGenerator.pauseGeneration(simulation);
-        logger.info('Simulation paused', { simulation: name });
+        logger.info("Simulation paused", { simulation: name });
     }
 
     async startHistoricalSensorSimulation(
@@ -230,7 +311,7 @@ export class SimulationManager {
         endDate: Date
     ): Promise<void> {
         if (this.sensorSimulator) {
-            throw new Error('A sensor simulation is already running');
+            throw new Error("A sensor simulation is already running");
         }
 
         this.sensorSimulator = new SensorSimulator(
@@ -241,11 +322,11 @@ export class SimulationManager {
             endDate
         );
 
-        logger.info('Starting historical sensor simulation', {
+        logger.info("Starting historical sensor simulation", {
             plcCount,
             temperature,
             startDate,
-            endDate
+            endDate,
         });
 
         await this.sensorSimulator.generateHistoricalData();
@@ -257,7 +338,7 @@ export class SimulationManager {
         brokerUrl: string
     ): Promise<void> {
         if (this.sensorSimulator) {
-            throw new Error('A sensor simulation is already running');
+            throw new Error("A sensor simulation is already running");
         }
 
         this.sensorSimulator = new SensorSimulator(
@@ -267,10 +348,10 @@ export class SimulationManager {
             this.fileManager
         );
 
-        logger.info('Starting realtime sensor simulation', {
+        logger.info("Starting realtime sensor simulation", {
             plcCount,
             temperature,
-            brokerUrl
+            brokerUrl,
         });
 
         await this.sensorSimulator.startRealTimeSimulation(brokerUrl);
@@ -278,40 +359,44 @@ export class SimulationManager {
 
     async stopSensorSimulation(): Promise<void> {
         if (!this.sensorSimulator) {
-            throw new Error('No sensor simulation is running');
+            throw new Error("No sensor simulation is running");
         }
 
         this.sensorSimulator.stopRealTimeSimulation();
         this.sensorSimulator = undefined;
-        logger.info('Stopped sensor simulation');
+        logger.info("Stopped sensor simulation");
     }
 
     setLoadBalancingStrategy(strategy: LoadBalancingStrategy): void {
         this.loadBalancingStrategy = strategy;
-        logger.info('Load balancing strategy updated', { strategy });
+        logger.info("Load balancing strategy updated", { strategy });
     }
 
     setFailureRecoveryConfig(config: FailureRecoveryConfig): void {
         for (const node of this.nodes.values()) {
             node.setRecoveryConfig(config);
         }
-        logger.info('Failure recovery configuration updated', { config });
+        logger.info("Failure recovery configuration updated", { config });
     }
 
     setCompressionConfig(config: CompressionConfig): void {
         for (const node of this.nodes.values()) {
             node.setCompressionConfig(config);
         }
-        logger.info('Compression configuration updated', { config });
+        logger.info("Compression configuration updated", { config });
     }
 
     getClusterStatus(): {
-        nodes: Map<string, {
-            status: string;
-            gpus: GPUInfo[];
-            network: NetworkInfo;
-            workload: number;
-        }>;
+        nodes: Map<
+            string,
+            {
+                status: string;
+                gpus: GPUInfo[];
+				disk: DiskInfo;
+                network: NetworkInfo;
+                workload: number;
+            }
+        >;
         totalGpus: number;
         averageWorkload: number;
         activeNodes: number;
@@ -320,7 +405,7 @@ export class SimulationManager {
             nodes: new Map(),
             totalGpus: 0,
             averageWorkload: 0,
-            activeNodes: 0
+            activeNodes: 0,
         };
 
         let totalWorkload = 0;
@@ -329,35 +414,40 @@ export class SimulationManager {
             const nodeStatus = {
                 status: node.getStatus(),
                 gpus: node.getGPUInfo(),
+				disk: node.getDiskInfo(),
                 network: node.getNetworkInfo(),
-                workload: node.getWorkload()
+                workload: node.getWorkload(),
             };
 
             status.nodes.set(name, nodeStatus);
             status.totalGpus += nodeStatus.gpus.length;
             totalWorkload += nodeStatus.workload;
 
-            if (nodeStatus.status === 'online') {
+            if (nodeStatus.status === "online") {
                 status.activeNodes++;
             }
         }
 
-        status.averageWorkload = status.activeNodes > 0 ?
-            totalWorkload / status.activeNodes : 0;
+        status.averageWorkload =
+            status.activeNodes > 0 ? totalWorkload / status.activeNodes : 0;
 
         return status;
     }
 
-    getOptimalGPU(): {node: ClusterNode; gpu: GPUInfo} | null {
+    getOptimalGPU(): { node: ClusterNode; gpu: GPUInfo } | null {
         let selectedNode: ClusterNode | null = null;
         let selectedGPU: GPUInfo | null = null;
         let bestMetric = Infinity;
 
         for (const node of this.nodes.values()) {
-            if (node.getStatus() !== 'online') {continue;}
+            if (node.getStatus() !== "online") {
+                continue;
+            }
 
             const gpu = node.selectOptimalGPU(this.loadBalancingStrategy);
-            if (!gpu) {continue;}
+            if (!gpu) {
+                continue;
+            }
 
             const metric = this.calculateMetric(node, gpu);
             if (metric < bestMetric) {
@@ -367,17 +457,18 @@ export class SimulationManager {
             }
         }
 
-        return selectedNode && selectedGPU ?
-            {node: selectedNode, gpu: selectedGPU} : null;
+        return selectedNode && selectedGPU
+            ? { node: selectedNode, gpu: selectedGPU }
+            : null;
     }
 
     private calculateMetric(node: ClusterNode, gpu: GPUInfo): number {
         switch (this.loadBalancingStrategy) {
-            case 'least-loaded':
-                return gpu.utilization + (node.getWorkload() * 0.5); // Consider both GPU and node workload
-            case 'temperature-aware':
-                return gpu.temperature + (node.getWorkload() * 0.2); // Weight temperature more heavily
-            case 'round-robin':
+            case "least-loaded":
+                return gpu.utilization + node.getWorkload() * 0.5; // Consider both GPU and node workload
+            case "temperature-aware":
+                return gpu.temperature + node.getWorkload() * 0.2; // Weight temperature more heavily
+            case "round-robin":
                 // Use node's last update time to ensure fair distribution
                 return node.getNetworkInfo().lastUpdate.getTime();
             default:
@@ -389,28 +480,28 @@ export class SimulationManager {
         for (const node of this.nodes.values()) {
             node.simulateLoad();
         }
-        logger.debug('Cluster load simulation completed');
+        logger.debug("Cluster load simulation completed");
     }
 
     startClusterSimulation(): void {
         if (this.loadSimulationInterval) {
-            logger.warn('Cluster simulation already running');
+            logger.warn("Cluster simulation already running");
             return;
         }
 
         this.loadSimulationInterval = setInterval(() => {
-            this.simulateClusterLoad();
-            logger.debug('Cluster load simulation updated');
+            // this.simulateClusterLoad();
+            logger.debug("Cluster load simulation updated");
         }, 5000); // Actualizar cada 5 segundos
 
-        logger.info('Started cluster load simulation');
+        logger.info("Started cluster load simulation");
     }
 
     stopClusterSimulation(): void {
         if (this.loadSimulationInterval) {
             clearInterval(this.loadSimulationInterval);
             this.loadSimulationInterval = null;
-            logger.info('Stopped cluster load simulation');
+            logger.info("Stopped cluster load simulation");
         }
     }
     getNodeConfig(nodeName: string): ClusterNodeConfig | undefined {

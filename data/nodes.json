@@ -1,33 +1,157 @@
 [
   {
     "config": {
-      "name": "orchestrator",
-      "ip": "192.168.1.100",
-      "role": "orchestrator"
+      "name": "RPi 5",
+      "gpus": [],
+      "disk": {
+        "label": "NVMe|SDCard",
+        "size": 64
+      },
+      "network": {
+        "ip": "192.168.1.99",
+        "role": "router",
+        "bandwidth": 1,
+        "latency": 1,
+        "packetLoss": 0,
+        "lastUpdate": "2025-02-26T03:23:12.548Z"
+      },
+      "status": "online",
+      "lastHeartbeat": "2025-02-26T03:23:12.548Z",
+      "workload": 0,
+      "failureCount": 0,
+      "compressionEnabled": false
     },
     "traces": []
   },
   {
     "config": {
-      "name": "data_manager",
-      "ip": "192.168.1.101",
-      "role": "data_manager"
+      "name": "AGX Orin",
+      "gpus": [
+        {
+          "model": "2048-core NVIDIA Ampere",
+          "memory": 64,
+          "utilization": 0,
+          "temperature": 35,
+          "tops": 275,
+          "tensorCores": 64
+        }
+      ],
+      "network": {
+        "ip": "192.168.1.100",
+        "role": "node-sun",
+        "bandwidth": 10,
+        "latency": 1,
+        "packetLoss": 0,
+        "lastUpdate": "2025-02-26T03:23:12.548Z"
+      },
+      "disk": {
+        "label": "eMMC 5.1",
+        "size": 64
+      },
+      "status": "online",
+      "lastHeartbeat": "2025-02-26T03:23:12.548Z",
+      "workload": 0,
+      "failureCount": 0,
+      "compressionEnabled": false
     },
     "traces": []
   },
   {
     "config": {
-      "name": "model_manager",
-      "ip": "192.168.1.102",
-      "role": "model_manager"
+      "name": "J202 NX (Yang)",
+      "gpus": [
+        {
+          "model": "1024-core NVIDIA Ampere",
+          "memory": 16,
+          "utilization": 0,
+          "temperature": 35,
+          "tops": 157,
+          "tensorCores": 32
+        }
+      ],
+      "disk": {
+        "label": "NVMe|SDCard",
+        "size": 64
+      },
+      "network": {
+        "ip": "192.168.1.101",
+        "role": "node-white",
+        "bandwidth": 1,
+        "latency": 1,
+        "packetLoss": 0,
+        "lastUpdate": "2025-02-26T03:23:12.548Z"
+      },
+      "status": "online",
+      "lastHeartbeat": "2025-02-26T03:23:12.548Z",
+      "workload": 0,
+      "failureCount": 0,
+      "compressionEnabled": false
     },
     "traces": []
   },
   {
     "config": {
-      "name": "network_manager",
-      "ip": "192.168.1.103",
-      "role": "network_manager"
+      "name": "J202 NX (Yin)",
+      "gpus": [
+        {
+          "model": "1024-core NVIDIA Ampere",
+          "memory": 16,
+          "utilization": 0,
+          "temperature": 35,
+          "tops": 157,
+          "tensorCores": 32
+        }
+      ],
+      "disk": {
+        "label": "NVMe|SDCard",
+        "size": 64
+      },
+      "network": {
+        "ip": "192.168.1.102",
+        "role": "node-black",
+        "bandwidth": 1,
+        "latency": 1,
+        "packetLoss": 0,
+        "lastUpdate": "2025-02-26T03:23:12.548Z"
+      },
+      "status": "online",
+      "lastHeartbeat": "2025-02-26T03:23:12.548Z",
+      "workload": 0,
+      "failureCount": 0,
+      "compressionEnabled": false
+    },
+    "traces": []
+  },
+  {
+    "config": {
+      "name": "Orin Nano",
+      "network": {
+        "ip": "192.168.1.103",
+        "role": "node-tiny",
+        "bandwidth": 1,
+        "latency": 1,
+        "packetLoss": 0,
+        "lastUpdate": "2025-02-26T03:23:12.548Z"
+      },
+      "disk": {
+        "label": "NVMe|SDCard",
+        "size": 64
+      },
+      "status": "online",
+      "gpus": [
+        {
+          "model": "1024-core NVIDIA Ampere",
+          "memory": 8,
+          "utilization": 0,
+          "temperature": 35,
+          "tops": 67,
+          "tensorCores": 32
+        }
+      ],
+      "workload": 0,
+      "failureCount": 0,
+      "compressionEnabled": false,
+      "lastHeartbeat": "2025-02-26T03:23:12.548Z"
     },
     "traces": []
   }

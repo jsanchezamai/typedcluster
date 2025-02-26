@@ -1,60 +1,185 @@
 {
-  "name": "typedcluster",
-  "displayName": "TypedCluster",
-  "description": "Provides VS Code integration for dummy pub/sub cluster. Admin panel and operator desk. This package is Replit IA code generated, take at risk.",
-  "version": "0.0.1",
-  "engines": {
-    "vscode": "^1.97.0"
-  },
-  "categories": [
-    "Other"
-  ],
-  "activationEvents": [],
-  "main": "./dist/extension.js",
-  "contributes": {
-    "commands": [
-      {
-        "command": "typedcluster.helloWorld",
-        "title": "Hello World"
-      }
-    ]
-  },
-  "scripts": {
-	"mergeconstribs": "npx typedcluster/src/utils/manifest-merger.ts",
-    "vscode:prepublish": "npm run package",
-    "compile": "mergeconstribs && webpack",
-    "watch": "webpack --watch",
-    "package": "webpack --mode production --devtool hidden-source-map",
-    "compile-tests": "tsc -p . --outDir out",
-    "watch-tests": "tsc -p . -w --outDir out",
-    "pretest": "npm run compile-tests && npm run compile && npm run lint",
-    "lint": "eslint --fix src",
-    "test": "vscode-test"
-  },
-  "devDependencies": {
-    "@types/mocha": "^10.0.10",
-    "@types/node": "20.x",
-    "@types/vscode": "^1.97.0",
-    "@typescript-eslint/eslint-plugin": "^8.22.0",
-    "@typescript-eslint/parser": "^8.22.0",
-    "@vscode/test-cli": "^0.0.10",
-    "@vscode/test-electron": "^2.4.1",
-	"@types/glob": "^8.1.0",
-    "@types/inquirer": "^9.0.7",
-	"@types/mqtt": "^0.0.34",
-    "eslint": "^9.19.0",
-    "ts-loader": "^9.5.2",
-    "typescript": "^5.7.3",
-    "webpack": "^5.97.1",
-    "webpack-cli": "^6.0.1"
-  },
-  "dependencies": {
-    "@neondatabase/serverless": "^0.10.4",
-    "drizzle-kit": "^0.30.5",
-    "drizzle-orm": "^0.40.0",
-    "inquirer": "^12.4.2",
-    "mqtt": "^5.10.3",
-    "typedoc": "^0.27.9",
-    "winston": "^3.17.0"
-  }
+	"name": "typedcluster",
+	"displayName": "TypedCluster",
+	"description": "Provides VS Code integration for dummy pub/sub cluster. Admin panel and operator desk. This package is Replit IA code generated, take at risk.",
+	"version": "0.0.1",
+	"engines": {
+		"vscode": "^1.97.0"
+	},
+	"categories": [
+		"Other"
+	],
+	"activationEvents": [],
+	"main": "./dist/extension.js",
+	"contributes": {
+		"commands": [
+			{
+				"command": "iotSimulator.createSimulation",
+				"title": "IoT Simulator: Create New Simulation"
+			},
+			{
+				"command": "iotSimulator.showClusterStatus",
+				"title": "IoT Simulator: Show Cluster Status"
+			},
+			{
+				"command": "iotSimulator.configureLoadBalancing",
+				"title": "IoT Simulator: Configure Load Balancing"
+			},
+			{
+				"command": "iotSimulator.startSimulation",
+				"title": "IoT Simulator: Start Simulation",
+				"icon": "$(play)"
+			},
+			{
+				"command": "iotSimulator.pauseSimulation",
+				"title": "IoT Simulator: Pause Simulation",
+				"icon": "$(debug-pause)"
+			},
+			{
+				"command": "iotSimulator.stopSimulation",
+				"title": "IoT Simulator: Stop Simulation",
+				"icon": "$(debug-stop)"
+			},
+			{
+				"command": "iotSimulator.generateHistoricalData",
+				"title": "IoT Simulator: Generate Historical Data",
+				"icon": "$(calendar)"
+			},
+			{
+				"command": "iotSimulator.configureFailureRecovery",
+				"title": "IoT Simulator: Configure Failure Recovery"
+			},
+			{
+				"command": "iotSimulator.openNodeSSH",
+				"title": "Open Node in SSH Terminal",
+				"icon": "$(terminal)"
+			},
+			{
+				"command": "iotSimulator.openNodeFTP",
+				"title": "Open Node in Remote Explorer",
+				"icon": "$(folder-opened)"
+			},
+			{
+				"command": "iotSimulator.openNodeGit",
+				"title": "Open Node in Source Control",
+				"icon": "$(git-branch)"
+			}
+		],
+		"view/title": [
+			
+		],
+		"viewsContainers": {
+			"activitybar": [
+				{
+					"id": "iot-simulator",
+					"title": "IoT Simulator",
+					"icon": "resources/dark/cluster.svg"
+				}
+			]
+		},
+		"views": {
+			"iot-simulator": [
+				{
+					"id": "iotSimulatorSimulations",
+					"name": "Simulations"
+				},
+				{
+					"id": "iotSimulatorNodes",
+					"name": "Cluster Nodes"
+				}
+			]
+		},
+		"menus": {
+			"view/item/context": [
+				{
+					"command": "iotSimulator.startSimulation",
+					"when": "view == iotSimulatorSimulations && viewItem == simulation && viewItem.status == stopped",
+					"group": "inline"
+				},
+				{
+					"command": "iotSimulator.pauseSimulation",
+					"when": "view == iotSimulatorSimulations && viewItem == simulation && viewItem.status == running",
+					"group": "inline"
+				},
+				{
+					"command": "iotSimulator.stopSimulation",
+					"when": "view == iotSimulatorSimulations && viewItem == simulation && viewItem.status != stopped",
+					"group": "inline"
+				},
+				{
+					"command": "iotSimulator.openNodeSSH",
+					"when": "view == iotSimulatorNodes && viewItem == node",
+					"group": "inline"
+				},
+				{
+					"command": "iotSimulator.openNodeFTP",
+					"when": "view == iotSimulatorNodes && viewItem == node",
+					"group": "inline"
+				},
+				{
+					"command": "iotSimulator.openNodeGit",
+					"when": "view == iotSimulatorNodes && viewItem == node",
+					"group": "inline"
+				}
+			]
+		},
+		"configuration": {
+			"title": "IoT Simulator",
+			"properties": {
+				"iotSimulator.defaultNodeCount": {
+					"type": "number",
+					"default": 3,
+					"description": "Default number of nodes for new simulations"
+				},
+				"iotSimulator.refreshInterval": {
+					"type": "number",
+					"default": 5000,
+					"description": "Metrics refresh interval (ms)"
+				},
+				"iotSimulator.mqttBroker": {
+					"type": "string",
+					"default": "mqtt://localhost:1883",
+					"description": "Default MQTT broker URL"
+				}
+			}
+		}
+	},
+	"scripts": {
+		"mergeconstribs": "npx src/utils/manifest-merger.ts",
+		"vscode:prepublish": "npm run package",
+		"compile": "webpack",
+		"watch": "webpack --watch",
+		"package": "webpack --mode production --devtool hidden-source-map",
+		"compile-tests": "tsc -p . --outDir out",
+		"watch-tests": "tsc -p . -w --outDir out",
+		"pretest": "npm run compile-tests && npm run compile && npm run lint",
+		"lint": "eslint --fix src",
+		"test": "vscode-test",
+		"typedoc": "typedoc --out docs src"
+	},
+	"devDependencies": {
+		"@types/glob": "^8.1.0",
+		"@types/inquirer": "^9.0.7",
+		"@types/mocha": "^10.0.10",
+		"@types/mqtt": "^0.0.34",
+		"@types/node": "20.x",
+		"@types/vscode": "^1.97.0",
+		"@typescript-eslint/eslint-plugin": "^8.22.0",
+		"@typescript-eslint/parser": "^8.22.0",
+		"@vscode/test-cli": "^0.0.10",
+		"@vscode/test-electron": "^2.4.1",
+		"eslint": "^9.19.0",
+		"ts-loader": "^9.5.2",
+		"typedoc-plugin-markdown": "^4.4.2",
+		"typescript": "^5.7.3",
+		"webpack": "^5.97.1",
+		"webpack-cli": "^6.0.1"
+	},
+	"dependencies": {
+		"@neondatabase/serverless": "^0.10.4",
+		"inquirer": "^12.4.2",
+		"mqtt": "^5.10.3",
+		"typedoc": "^0.27.9",
+		"winston": "^3.17.0"
+	}
 }

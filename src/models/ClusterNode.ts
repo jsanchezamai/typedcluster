@@ -7,7 +7,8 @@ import {
     NetworkInfo,
     LoadBalancingStrategy,
     FailureRecoveryConfig,
-    CompressionConfig
+    CompressionConfig,
+	DiskInfo
 } from '../types/cluster';
 import { logger } from '../utils/logger';
 
@@ -16,6 +17,7 @@ export class ClusterNode {
     private lastHeartbeat: Date;
     private status: NodeStatus = 'offline';
     private gpus: GPUInfo[] = [];
+	private disk: DiskInfo;
     private network: NetworkInfo;
     private workload: number = 0;
     private failureCount: number = 0;
@@ -36,7 +38,13 @@ export class ClusterNode {
         this.lastHeartbeat = new Date();
         this.status = config.status || 'offline';
         this.gpus = config.gpus || [];
+		this.disk = config.disk || {
+			label: '--',
+			size: 0
+		};
         this.network = config.network || {
+			ip: '',
+			role: '',
             bandwidth: 1000,
             latency: 1,
             packetLoss: 0,
@@ -64,6 +72,7 @@ export class ClusterNode {
             data: {
                 status: this.status,
                 gpus: this.gpus,
+				disk: this.disk,
                 network: this.network,
                 workload: this.workload
             }
@@ -185,6 +194,7 @@ export class ClusterNode {
         return {
             ...this.config,
             gpus: this.gpus,
+			disk: this.disk,
             network: this.network,
             status: this.status,
             lastHeartbeat: this.lastHeartbeat,
@@ -209,6 +219,10 @@ export class ClusterNode {
 
     getNetworkInfo(): NetworkInfo {
         return this.network;
+    }
+
+	getDiskInfo(): DiskInfo {
+        return this.disk;
     }
 
     simulateLoad(): void {

@@ -2,24 +2,32 @@ export type GPUInfo = {
     model: string;
     memory: number; // en GB
     utilization: number; // porcentaje
-    temperature: number; // en Celsius
+    temperature: number; // en Celsius,
+	tops: number,
+	tensorCores: number
 };
 
 export type NetworkInfo = {
-    bandwidth: number; // en Mbps
+    bandwidth: number; // en Gbs
     latency: number; // en ms
     packetLoss: number; // porcentaje
     lastUpdate: Date;
+	ip: string;
+	role: string;
+};
+
+export type DiskInfo = {
+    label: string;
+    size: number; // en GB
 };
 
 export type NodeStatus = 'online' | 'offline' | 'degraded';
 
 export type ClusterNodeConfig = {
     name: string;
-    ip: string;
-    role: 'orchestrator' | 'data_manager' | 'model_manager' | 'network_manager';
     gpus?: GPUInfo[];
     network?: NetworkInfo;
+	disk?: DiskInfo;
     status?: NodeStatus;
     lastHeartbeat?: Date;
     workload?: number; // Porcentaje de carga de trabajo actual
@@ -31,6 +39,7 @@ export type HeartbeatData = {
     timestamp: Date;
     status: NodeStatus;
     gpus?: GPUInfo[];
+	disk: DiskInfo;
     network?: NetworkInfo;
     workload?: number;
 };

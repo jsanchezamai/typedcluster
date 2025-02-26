@@ -4,12 +4,12 @@ import { logger } from './utils/logger';
 
 async function main() {
     try {
-        logger.info('Starting InVendi Cluster Simulator Kit');
+        logger.info('Starting kit Cluster Simulator Kit');
 
         const simulationManager = new SimulationManager();
         const menuSystem = new MenuSystem(simulationManager);
 
-        console.log('Bienvenido a InVendi Cluster Simulator Kit');
+        console.log('Bienvenido a kit Cluster Simulator Kit');
         await menuSystem.showMainMenu();
 
         logger.info('Application terminated normally');

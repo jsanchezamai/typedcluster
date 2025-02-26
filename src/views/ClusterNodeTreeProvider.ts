@@ -5,9 +5,9 @@
  * and quick actions.
  */
 
-import * as vscode from 'vscode';
-import { SimulationManager } from '../services/SimulationManager';
-import { GPUInfo, NetworkInfo, NodeStatus } from '../types/cluster';
+import * as vscode from "vscode";
+import { SimulationManager } from "../services/SimulationManager";
+import { DiskInfo, GPUInfo, NetworkInfo, NodeStatus } from "../types/cluster";
 
 /**
  * Interface defining the status information for a cluster node
@@ -16,6 +16,7 @@ import { GPUInfo, NetworkInfo, NodeStatus } from '../types/cluster';
 interface NodeStatusInfo {
     status: NodeStatus;
     gpus: GPUInfo[];
+	disk: DiskInfo;
     network: NetworkInfo;
     workload: number;
 }
@@ -26,34 +27,37 @@ interface NodeStatusInfo {
  * @internal
  */
 class NodeTreeItem extends vscode.TreeItem {
-    constructor(
-        public nodeName: string,
-        public nodeStatus: NodeStatusInfo
-    ) {
-        super(
-            nodeName,
-            vscode.TreeItemCollapsibleState.Collapsed
-        );
-        this.tooltip = `Status: ${nodeStatus.status}\nWorkload: ${nodeStatus.workload.toFixed(1)}%`;
-        this.description = `${nodeStatus.status} - ${nodeStatus.workload.toFixed(1)}%`;
-        this.contextValue = 'node';
+    type: string = "";
+    constructor(public nodeName: string, public nodeStatus: NodeStatusInfo) {
+        super(nodeName, vscode.TreeItemCollapsibleState.Collapsed);
+        this.tooltip = `Status: ${
+            nodeStatus.status
+        }\nWorkload: ${nodeStatus.workload.toFixed(1)}%`;
+        this.description =
+            this.type == "detail"
+                ? `${nodeStatus.status} - ${nodeStatus.workload.toFixed(1)}%`
+                : "";
+        this.contextValue = "node";
 
         // Set icon based on status using built-in theme icons
-        this.iconPath = {
-            id: nodeStatus.status === 'online' ? 'pass' :
-                nodeStatus.status === 'degraded' ? 'warning' : 'error',
-            color: nodeStatus.status === 'online' ? 
-                new vscode.ThemeColor('testing.iconPassed') :
-                nodeStatus.status === 'degraded' ?
-                    new vscode.ThemeColor('testing.iconSkipped') :
-                    new vscode.ThemeColor('testing.iconFailed')
-        } as vscode.ThemeIcon;
+        this.iconPath = new vscode.ThemeIcon(
+            nodeStatus.status === "online"
+                ? "pass"
+                : nodeStatus.status === "degraded"
+                ? "warning"
+                : "error",
+            nodeStatus.status === "online"
+                ? new vscode.ThemeColor("testing.iconPassed")
+                : nodeStatus.status === "degraded"
+                ? new vscode.ThemeColor("testing.iconSkipped")
+                : new vscode.ThemeColor("testing.iconFailed")
+        );
 
         // Add command to handle click
         this.command = {
-            command: 'iotSimulator.showNodeDetails',
-            title: 'Show Node Details',
-            arguments: [this.nodeName, this.nodeStatus]
+            command: "iotSimulator.showNodeDetails",
+            title: "Show Node Details",
+            arguments: [this.nodeName, this.nodeStatus],
         };
     }
 }
@@ -63,14 +67,16 @@ class NodeTreeItem extends vscode.TreeItem {
  * @internal
  */
 class NodeDetailItem extends NodeTreeItem {
-    constructor(
-        label: string,
-        nodeName: string,
-        nodeStatus: NodeStatusInfo
-    ) {
+    type: string = "detail";
+    constructor(label: string, nodeName: string, nodeStatus: NodeStatusInfo) {
         super(nodeName, nodeStatus);
         this.label = label;
+        this.description = `${
+            nodeStatus.status
+        } - ${nodeStatus.workload.toFixed(1)}%`;
         this.collapsibleState = vscode.TreeItemCollapsibleState.None;
+		this.iconPath = new vscode.ThemeIcon("info");
+		this.contextValue = "nodeDetail";
     }
 }
 
@@ -79,6 +85,7 @@ class NodeDetailItem extends NodeTreeItem {
  * @internal
  */
 class NodeActionItem extends NodeTreeItem {
+    type: string = "action";
     constructor(
         label: string,
         iconId: string,
@@ -87,9 +94,9 @@ class NodeActionItem extends NodeTreeItem {
         command?: vscode.Command
     ) {
         super(nodeName, nodeStatus);
-        this.label = label;
+        this.label = "[" + label + "]";
         this.collapsibleState = vscode.TreeItemCollapsibleState.None;
-        this.iconPath = { id: iconId } as vscode.ThemeIcon;
+        this.iconPath = new vscode.ThemeIcon(iconId);
         this.command = command;
     }
 }
@@ -97,16 +104,22 @@ class NodeActionItem extends NodeTreeItem {
 /**
  * Tree data provider for displaying cluster nodes and their status in VS Code's sidebar.
  * Implements the VS Code TreeDataProvider interface to create a hierarchical view of nodes.
- * 
+ *
  * @example
  * ```typescript
  * const nodeProvider = new ClusterNodeTreeProvider(simulationManager);
  * vscode.window.registerTreeDataProvider('iotSimulatorNodes', nodeProvider);
  * ```
  */
-export class ClusterNodeTreeProvider implements vscode.TreeDataProvider<NodeTreeItem> {
-    private _onDidChangeTreeData: vscode.EventEmitter<NodeTreeItem | undefined | null> = new vscode.EventEmitter<NodeTreeItem | undefined | null>();
-    readonly onDidChangeTreeData: vscode.Event<NodeTreeItem | undefined | null> = this._onDidChangeTreeData.event;
+export class ClusterNodeTreeProvider
+    implements vscode.TreeDataProvider<NodeTreeItem>
+{
+    private _onDidChangeTreeData: vscode.EventEmitter<
+        NodeTreeItem | undefined | null
+    > = new vscode.EventEmitter<NodeTreeItem | undefined | null>();
+    readonly onDidChangeTreeData: vscode.Event<
+        NodeTreeItem | undefined | null
+    > = this._onDidChangeTreeData.event;
 
     constructor(private simulationManager: SimulationManager) {}
 
@@ -134,60 +147,55 @@ export class ClusterNodeTreeProvider implements vscode.TreeDataProvider<NodeTree
         if (!element) {
             // Root level - show all nodes
             const status = this.simulationManager.getClusterStatus();
-            return Array.from(status.nodes.entries()).map(([name, nodeStatus]) => 
-                new NodeTreeItem(name, nodeStatus as NodeStatusInfo)
+            const cluster = Array.from(status.nodes.entries()).map(
+                ([key, value]) => new NodeTreeItem(key, value as NodeStatusInfo)
             );
+            return cluster;
         }
+
+        const network = element.nodeStatus.network || {
+            bandwidth: 0,
+            latency: 0,
+        };
 
         // Child level - show node details and actions
         const details: NodeTreeItem[] = [];
 
-        // Add node details
-        if (element.nodeStatus.gpus && element.nodeStatus.gpus.length > 0) {
-            details.push(new NodeDetailItem(`GPUs: ${element.nodeStatus.gpus.length}`, element.nodeName, element.nodeStatus));
-            element.nodeStatus.gpus.forEach((gpu, index) => {
-                details.push(new NodeDetailItem(
-                    `GPU ${index + 1}: ${gpu.model} (${gpu.utilization.toFixed(1)}%, ${gpu.temperature.toFixed(1)}°C)`,
-                    element.nodeName,
-                    element.nodeStatus
-                ));
-            });
-        }
-
-        details.push(new NodeDetailItem(
-            `Workload: ${element.nodeStatus.workload.toFixed(1)}%`,
-            element.nodeName,
-            element.nodeStatus
-        ));
-        details.push(new NodeDetailItem(
-            `Network: ${element.nodeStatus.network.bandwidth}Mbps, ${element.nodeStatus.network.latency.toFixed(1)}ms`,
-            element.nodeName,
-            element.nodeStatus
-        ));
-
-        // Add action items
         details.push(
-            new NodeActionItem('Open in SSH Terminal', 'terminal', element.nodeName, element.nodeStatus, {
-                command: 'remote-ssh.connect',
-                title: 'Open SSH Terminal',
-                arguments: [{
-                    host: element.nodeName,
-                    user: 'iot',
-                    port: 22
-                }]
-            }),
-            new NodeActionItem('Open in Remote Explorer', 'folder-opened', element.nodeName, element.nodeStatus, {
-                command: 'remoteHub.openRepository',
-                title: 'Open in Remote Explorer',
-                arguments: [`sftp://${element.nodeName}`]
-            }),
-            new NodeActionItem('Open in Source Control', 'git-branch', element.nodeName, element.nodeStatus, {
-                command: 'git.clone',
-                title: 'Open in Source Control',
-                arguments: [`ssh://iot@${element.nodeName}/var/iot/repo.git`]
-            })
+            new NodeDetailItem(
+                `${network.ip}: ${
+                    network.bandwidth
+                } Gbs, ${network.latency.toFixed(1)} ms`,
+                element.nodeName,
+                element.nodeStatus
+            )
         );
 
+		const disk = element.nodeStatus.disk || {
+			label: '--',
+			size: 0
+        };
+
+		details.push(
+            new NodeDetailItem(
+                `${disk.label}: ${disk.size} GB`,
+                element.nodeName,
+                element.nodeStatus
+            )
+        );
+
+        // Add node details
+        if (element.nodeStatus.gpus && element.nodeStatus.gpus.length > 0) {
+            element.nodeStatus.gpus.forEach((gpu, index) => {
+                details.push(
+                    new NodeDetailItem(
+                        `GPU ${index + 1}: ${gpu.model} - ${gpu.memory} GB`,
+                        element.nodeName,
+                        element.nodeStatus
+                    )
+                );
+            });
+        }
         return details;
     }
 }
