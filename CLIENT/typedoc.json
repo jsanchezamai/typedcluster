@@ -1,0 +1,23 @@
+{
+  "$schema": "https://typedoc.org/schema.json",
+  "entryPoints": ["src/index.ts"],
+  "out": "docs",
+  "name": "IoT Cluster Client",
+  "excludePrivate": false,
+  "excludeProtected": false,
+  "readme": "README.md",
+  "plugin": ["typedoc-plugin-markdown"],
+  "theme": "markdown",
+  "includeVersion": true,
+  "categorizeByGroup": true,
+  "categoryOrder": [
+    "Core",
+    "Configuration",
+    "Monitoring",
+    "Communication",
+    "*"
+  ],
+  "sort": [
+    "source-order"
+  ]
+}
